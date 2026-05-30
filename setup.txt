@@ -1,0 +1,36 @@
+# Filehub — copy to SD card as /setup/setup.txt
+# Values are read on app start.
+
+# ── Common ───────────────────────────────────────────────────────
+BRIGHTNESS = 200
+TIMEOUT    = 0
+
+# ── WiFi (station mode). Leave blank to start AP instead. ───────
+SSID      = ""
+PASSWORD  = ""
+# Optional fallback networks:
+# SSID2     = ""
+# PASSWORD2 = ""
+# SSID3     = ""
+# PASSWORD3 = ""
+
+# ── Access-point fallback (used if STA fails or none configured) ─
+# AP_SSID defaults to "Filehub-XXXX" (last 4 hex of MAC).
+# AP_PASS must be >= 8 chars for WPA2; shorter = open network.
+# AP_SSID = "Filehub-Mex"
+# AP_PASS = "filehub123"
+
+# ── WebDAV auth ──────────────────────────────────────────────────
+# Empty WEBDAV_PASS = no authentication required.
+WEBDAV_USER = "filehub"
+WEBDAV_PASS = ""
+
+# ── Folders exposed via HTTP upload/download pages ───────────────
+# Default: one shared folder "/filehub" — uploaded files are also
+# listed on the download page.  Set them to different paths to split.
+# WebDAV exposes the full SD card regardless of these.
+HTTP_UPLOAD_DIR   = "/filehub"
+HTTP_DOWNLOAD_DIR = "/filehub"
+
+# ── HTTP port ───────────────────────────────────────────────────
+HTTP_PORT = 80
