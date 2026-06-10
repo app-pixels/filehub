@@ -1,3 +1,5 @@
+> Part of [**app-pixels.com**](https://www.app-pixels.com) — browse + flash this app at [`/apps/filehub`](https://www.app-pixels.com/apps/filehub).
+
 # filehub
 
 **Filehub** · v1.0.0
