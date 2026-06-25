@@ -46,7 +46,7 @@
 
 extern USBCDC USBSerial;
 extern Arduino_Canvas *g_canvas;
-extern TouchDrvFT6X36  touch;
+extern TouchDrvInterface *touch;
 
 // ── Constants ────────────────────────────────────────────────────────────────
 #define BOOT_BTN        0
@@ -1374,7 +1374,7 @@ static void initUsbMsc() {}
 #endif
 
 // ── Lifecycle ────────────────────────────────────────────────────────────────
-void app_filehub_setup(Arduino_SH8601 *gfx_unused) {
+void app_filehub_setup(Arduino_OLED *gfx_unused) {
     (void)gfx_unused;
     canvas = g_canvas;
     s_bytesIn = s_bytesOut = 0;
@@ -1485,7 +1485,7 @@ void app_filehub_loop() {
 
     // Touch
     int16_t tx[1], ty[1];
-    bool touching = touch.getPoint(tx, ty, 1);
+    bool touching = touch->getPoint(tx, ty, 1);
 
     if (touching && !s_touchWas) {
         s_touchStartY = ty[0];

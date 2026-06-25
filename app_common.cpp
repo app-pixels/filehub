@@ -127,14 +127,18 @@ void common_tick() {
     // BOOT held + PWR short-press. We own the AXP IRQ status here — read
     // once per tick, clear once per tick, and stash the short-press for
     // the app to consume via common_consume_pwr_short().
-    if (s_armBackToMenu) {
-        power.getIrqStatus();
-        bool pwrLong  = power.isPekeyLongPressIrq();
-        bool pwrShort = power.isPekeyShortPressIrq();
-        bool boot     = (digitalRead(0) == LOW);
-        // Always clear so we don't race with anything else.
-        power.clearIrqStatus();
+    // PWR-IRQ handling. The latch (s_pwrShortPending) must always run so
+    // standalone apps — which never call common_enter_app() — can still read
+    // short-presses via common_consume_pwr_short(). Only the exit-to-menu
+    // actions are gated on s_armBackToMenu, since they only make sense from
+    // within the launcher.
+    power.getIrqStatus();
+    bool pwrLong  = power.isPekeyLongPressIrq();
+    bool pwrShort = power.isPekeyShortPressIrq();
+    bool boot     = (digitalRead(0) == LOW);
+    power.clearIrqStatus();
 
+    if (s_armBackToMenu) {
         if (pwrLong) {
             common_exit_to_menu();
             return;
@@ -143,9 +147,9 @@ void common_tick() {
             common_exit_to_menu();
             return;
         }
-        if (pwrShort) {
-            s_pwrShortPending = true;
-        }
+    }
+    if (pwrShort) {
+        s_pwrShortPending = true;
     }
 
     if (g_config.timeout_s == 0) return;
@@ -338,8 +342,7 @@ void draw_pill_label(Arduino_GFX *gfx, uint8_t rotation, uint8_t button,
         int16_t px    = btnX - pillW / 2;
         int16_t py    = 4;
 
-        gfx->fillRoundRect(px, py, pillW, pillH, rad, HUD_PILL_BG);
-        gfx->drawRoundRect(px, py, pillW, pillH, rad, HUD_PILL_BD);
+        gfx->fillRoundRect(px, py, pillW, pillH, rad, 0x0000);   // black pill bg — keeps label readable over any UI
         drawTextPx(gfx, px + padX, py + padY, action, HUD_PILL_TX, stride, pxSz);
     } else {
         // ── Portrait (rot=0 or 0xFF): vertical pill on RIGHT edge ───────
@@ -350,8 +353,7 @@ void draw_pill_label(Arduino_GFX *gfx, uint8_t rotation, uint8_t button,
         int16_t px    = LCD_WIDTH - pillW - 4;
         int16_t py    = btnY - pillH / 2;
 
-        gfx->fillRoundRect(px, py, pillW, pillH, rad, HUD_PILL_BG);
-        gfx->drawRoundRect(px, py, pillW, pillH, rad, HUD_PILL_BD);
+        gfx->fillRoundRect(px, py, pillW, pillH, rad, 0x0000);   // black pill bg — keeps label readable over any UI
         drawTextRot(gfx, px + padX, py + padY, action, HUD_PILL_TX, stride, pxSz);
     }
 }

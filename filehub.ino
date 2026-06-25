@@ -12,17 +12,17 @@
 #include "HWCDC.h"
 #include "XPowersLib.h"
 #include "app_common.h"
+#include "hw_panel.h"
 #include "app_filehub.h"
 #include "TouchDrvFT6X36.hpp"
 
 
 Arduino_DataBus *bus = new Arduino_ESP32QSPI(
   LCD_CS, LCD_SCLK, LCD_SDIO0, LCD_SDIO1, LCD_SDIO2, LCD_SDIO3);
-Arduino_SH8601 *gfx = new Arduino_SH8601(
-  bus, GFX_NOT_DEFINED, 0, LCD_WIDTH, LCD_HEIGHT);
+Arduino_OLED *gfx = nullptr;
 Arduino_Canvas *g_canvas = nullptr;
 XPowersPMU power;
-TouchDrvFT6X36 touch;
+TouchDrvInterface *touch = nullptr;
 
 void setup() {
   USBSerial.begin(115200);
@@ -52,9 +52,10 @@ void setup() {
     SD_MMC.end();
   }
 
-  if (!touch.begin(Wire, FT6X36_SLAVE_ADDRESS, IIC_SDA, IIC_SCL))
+  if (!(touch = make_touch()))
     USBSerial.println("FT6X36 init failed");
 
+  gfx = make_display(bus);
   g_canvas = new Arduino_Canvas(LCD_WIDTH, LCD_HEIGHT, gfx, 0, 0, 0);
   if (!g_canvas->begin()) USBSerial.println("canvas begin failed");
   gfx->setBrightness(g_config.brightness);
